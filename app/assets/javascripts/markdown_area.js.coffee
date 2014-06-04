@@ -77,26 +77,30 @@ $(document).ready ->
     my_event = e.originalEvent
     
     if my_event.clipboardData and my_event.clipboardData.items
-      i = 0
-      while i < my_event.clipboardData.items.length
-        item = my_event.clipboardData.items[i]
-        processItem(my_event, item)
-        i++
+      processItem(my_event)
+      
 
-  processItem = (e, item) ->
-    if isImage(item)
+  processItem = (e) ->
+    image = isImage(e)
+    if image
       filename = getFilename(e) or "image.png"
       text = "{{" + filename + "}}"
       pasteText(text)
-      uploadFile item.getAsFile(), filename
-    else if e.clipboardData.items.length == 1
+      uploadFile image.getAsFile(), filename
+
+    else
       text = e.clipboardData.getData("text/plain")
       pasteText(text)
 
-  isImage = (item) ->
-    if item
-      item.type.indexOf("image") isnt -1
-
+  isImage = (data) ->
+    i = 0
+    while i < data.clipboardData.items.length
+      item = data.clipboardData.items[i]
+      if item.type.indexOf("image") isnt -1
+        return item
+      i++
+    return false
+  
   pasteText = (text) ->
     caretStart = $(child)[0].selectionStart
     caretEnd = $(child)[0].selectionEnd
